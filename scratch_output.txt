@@ -1,0 +1,238 @@
+=== QUERY: Triết học là gì? ===
+=== Manual File Test ===
+Accepted file types: .md, .txt
+Input file list:
+  - data/giao_trinh.md
+
+Loaded 1 documents
+  - giao_trinh: data\giao_trinh.md
+
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 103/103 [00:00<00:00, 3225.81it/s]
+[1mBertModel LOAD REPORT[0m from: sentence-transformers/all-MiniLM-L6-v2
+Key                     | Status     |  | 
+------------------------+------------+--+-
+embeddings.position_ids | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+
+Embedding backend: all-MiniLM-L6-v2
+Loaded cached vector store from .cache\manual_test_store.json
+
+Stored 4068 chunks in EmbeddingStore
+
+=== EmbeddingStore Search Test ===
+Query: Triết học là gì?
+1. score=0.633 source=data\giao_trinh.md
+   content preview: Thế giới quan là toàn bộ những quan điểm về thế giới và về vị trí của con người trong thế giới đó. Triết học là hạt nhân...
+2. score=0.630 source=data\giao_trinh.md
+   content preview: Trong lịch sử phát triển của tư duy, thế giới quan thể hiện dưới nhiều hình thức đa dạng khác nhau, nên cũng được phân l...
+3. score=0.623 source=data\giao_trinh.md
+   content preview: Thế giới quan triết học Mác \- Lênin đã giúp Đảng Cộng sản Việt Nam nhìn nhận con đường đi lên chủ nghĩa xã hội trong gi...
+4. score=0.620 source=data\giao_trinh.md
+   content preview: Triết học Mác \- Lênin có *mối quan hệ gắn bó chặt chẽ* với các khoa học cụ thể. Các khoa học cụ thể cung cấp những dữ l...
+5. score=0.611 source=data\giao_trinh.md
+   content preview: Như vậy, triết học với tính cách là hạt nhân lý luận, trên thực tế, chi phối mọi thế giới quan, dù người ta có chú ý và ...
+
+=== KnowledgeBaseAgent Test ===
+LLM backend: qw/qwen3-coder-plus
+Question: Triết học là gì?
+Agent answer:
+Theo nội dung được cung cấp trong đoạn trích, triết học là **hạt nhân lý luận của thế giới quan**. Ngoài ra, triết học Mác - Lênin còn được mô tả là mang lại **thế giới quan duy vật biện chứng**, đóng vai trò là **hạt nhân thế giới quan cộng sản**.
+
+
+=== QUERY: Vấn đề cơ bản của triết học? ===
+=== Manual File Test ===
+Accepted file types: .md, .txt
+Input file list:
+  - data/giao_trinh.md
+
+Loaded 1 documents
+  - giao_trinh: data\giao_trinh.md
+
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 103/103 [00:00<00:00, 1501.37it/s]
+[1mBertModel LOAD REPORT[0m from: sentence-transformers/all-MiniLM-L6-v2
+Key                     | Status     |  | 
+------------------------+------------+--+-
+embeddings.position_ids | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+
+Embedding backend: all-MiniLM-L6-v2
+Loaded cached vector store from .cache\manual_test_store.json
+
+Stored 4068 chunks in EmbeddingStore
+
+=== EmbeddingStore Search Test ===
+Query: Vấn đề cơ bản của triết học?
+1. score=0.779 source=data\giao_trinh.md
+   content preview: Như vậy, triết học với tính cách là hạt nhân lý luận, trên thực tế, chi phối mọi thế giới quan, dù người ta có chú ý và ...
+2. score=0.741 source=data\giao_trinh.md
+   content preview: *\*Những hình thức vận động cơ bản của vật chất*...
+3. score=0.739 source=data\giao_trinh.md
+   content preview: Triết học, khác với một số loại hình nhận thức khác, trước khi giải quyết các vấn đề cụ thể của mình, nó buộc phải...
+4. score=0.728 source=data\giao_trinh.md
+   content preview: Điều đó chỉ có thể thực hiện được khi triết học dựa trên cơ sở tổng kết toàn bộ lịch sử của khoa học và lịch sử của bản ...
+5. score=0.718 source=data\giao_trinh.md
+   content preview: Trong tương lai, khoa học hiện đại có thể sẽ phát hiện ra những trình độ tổ chức vật chất mới, và do đó, cũng có thể tìm...
+
+=== KnowledgeBaseAgent Test ===
+LLM backend: qw/qwen3-coder-plus
+Question: Vấn đề cơ bản của triết học?
+Agent answer:
+Vấn đề cơ bản của triết học là vấn đề về mối quan hệ giữa vật chất với ý thức. Đây là vấn đề có ý nghĩa nền tảng, là điểm xuất phát để giải quyết tất cả những vấn đề còn lại trong triết học. Ph.Ăngghen cũng từng nhấn mạnh: “Vấn đề cơ bản lớn của mọi triết học, đặc biệt là của triết học hiện đại, là vấn đề quan hệ giữa tư duy với tồn tại.”
+
+
+=== QUERY: Vai trò của thực tiễn? ===
+=== Manual File Test ===
+Accepted file types: .md, .txt
+Input file list:
+  - data/giao_trinh.md
+
+Loaded 1 documents
+  - giao_trinh: data\giao_trinh.md
+
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 103/103 [00:00<00:00, 2432.70it/s]
+[1mBertModel LOAD REPORT[0m from: sentence-transformers/all-MiniLM-L6-v2
+Key                     | Status     |  | 
+------------------------+------------+--+-
+embeddings.position_ids | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+
+Embedding backend: all-MiniLM-L6-v2
+Loaded cached vector store from .cache\manual_test_store.json
+
+Stored 4068 chunks in EmbeddingStore
+
+=== EmbeddingStore Search Test ===
+Query: Vai trò của thực tiễn?
+1. score=0.697 source=data\giao_trinh.md
+   content preview: Sự hoà quyện giữa tri thức với tình cảm và trải nghiệm thực tiễn đã tạo nên tính bền vững của *niềm tin* thôi thúc con n...
+2. score=0.695 source=data\giao_trinh.md
+   content preview: Nếu không vì thực tiễn, nhận thức sẽ mất phương hướng, bế tắc. Mọi tri thức khoa học \- kết quả của nhân thức chỉ có ý n...
+3. score=0.694 source=data\giao_trinh.md
+   content preview: Ý thức của con người chỉ là sự "hồi tưởng" về "ý niệm", hay "tự ý thức" lại "ý niệm tuyệt đối". Còn *chủ nghĩa duy tâm c...
+4. score=0.685 source=data\giao_trinh.md
+   content preview: Từ quan niệm trên về thực tiễn có thể thấy thực tiễn gồm những đặc trưng sau:...
+5. score=0.677 source=data\giao_trinh.md
+   content preview: Kết quả của hoạt động thực tiễn phụ thuộc vào nhiều nhân tố nhưng trước kết là phụ thuộc vào mục đích đặt ra và phương t...
+
+=== KnowledgeBaseAgent Test ===
+LLM backend: qw/qwen3-coder-plus
+Question: Vai trò của thực tiễn?
+Agent answer:
+Theo nội dung được cung cấp trong đoạn trích, vai trò của thực tiễn rất quan trọng:
+
+- **Thực tiễn giúp cho nhận thức không bị mất phương hướng và bế tắc**. Nếu không có thực tiễn, nhận thức sẽ không còn định hướng đúng đắn.
+  
+- **Tri thức khoa học – kết quả của nhận thức – chỉ có ý nghĩa khi được áp dụng vào đời sống thực tiễn**, dù là trực tiếp hay gián tiếp, để phục vụ con người.
+
+Tóm lại, thực tiễn đóng vai trò định hướng, kiểm chứng và phát huy giá trị của tri thức trong đời sống.
+
+
+=== QUERY: Phép biện chứng duy vật? ===
+=== Manual File Test ===
+Accepted file types: .md, .txt
+Input file list:
+  - data/giao_trinh.md
+
+Loaded 1 documents
+  - giao_trinh: data\giao_trinh.md
+
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 103/103 [00:00<00:00, 2418.43it/s]
+[1mBertModel LOAD REPORT[0m from: sentence-transformers/all-MiniLM-L6-v2
+Key                     | Status     |  | 
+------------------------+------------+--+-
+embeddings.position_ids | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+
+Embedding backend: all-MiniLM-L6-v2
+Loaded cached vector store from .cache\manual_test_store.json
+
+Stored 4068 chunks in EmbeddingStore
+
+=== EmbeddingStore Search Test ===
+Query: Phép biện chứng duy vật?
+1. score=0.829 source=data\giao_trinh.md
+   content preview: ***b. Khái niệm phép biện chứng duy vật***...
+2. score=0.697 source=data\giao_trinh.md
+   content preview: ***c. Các quy luật cơ bản của phép biện chứng duy vật***...
+3. score=0.690 source=data\giao_trinh.md
+   content preview: Vì vậy, phủ định biện chứng là vòng khâu tất yếu của sự liên hệ và sự phát triển....
+4. score=0.672 source=data\giao_trinh.md
+   content preview: ***b. Các cặp phạm trù cơ bản của phép biện chứng duy vật***...
+5. score=0.665 source=data\giao_trinh.md
+   content preview: \+ Hình thức thứ ba là *phép biện chứng duy vật*. Phép biện chứng duy vật được thể hiện trong triết học do C.Mác...
+
+=== KnowledgeBaseAgent Test ===
+LLM backend: qw/qwen3-coder-plus
+Question: Phép biện chứng duy vật?
+Agent answer:
+Based on the provided context:
+
+Phép biện chứng duy vật là một khái niệm được đề cập trong [Chunk 1], tuy nhiên nội dung cụ thể của khái niệm này không được trình bày rõ ràng trong các đoạn cung cấp. Do đó, không thể đưa ra định nghĩa đầy đủ về phép biện chứng duy vật chỉ từ những thông tin hiện có.
+
+
+=== QUERY: Duy vật vs duy tâm? ===
+=== Manual File Test ===
+Accepted file types: .md, .txt
+Input file list:
+  - data/giao_trinh.md
+
+Loaded 1 documents
+  - giao_trinh: data\giao_trinh.md
+
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 103/103 [00:00<00:00, 2257.18it/s]
+[1mBertModel LOAD REPORT[0m from: sentence-transformers/all-MiniLM-L6-v2
+Key                     | Status     |  | 
+------------------------+------------+--+-
+embeddings.position_ids | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+
+Embedding backend: all-MiniLM-L6-v2
+Loaded cached vector store from .cache\manual_test_store.json
+
+Stored 4068 chunks in EmbeddingStore
+
+=== EmbeddingStore Search Test ===
+Query: Duy vật vs duy tâm?
+1. score=0.456 source=data\giao_trinh.md
+   content preview: Đó là một đường lối khoa học và đường lối đó chỉ có thể có được trên cơ sở lập trường duy vật....
+2. score=0.430 source=data\giao_trinh.md
+   content preview: Vì vậy, vấn đề không chỉ là ở chỗ khẳng định tính tuyệt đối của vận động và tính tương đối của đứng im mà phải nghiên cứ...
+3. score=0.422 source=data\giao_trinh.md
+   content preview: Do vậy, vật chất vận động quy định không gian, thời gian chứ không phải không gian là cái “thùng rỗng”, cái “khung cứng”...
+4. score=0.420 source=data\giao_trinh.md
+   content preview: Tuyệt đối hoá tính trừu tượng của phạm trù này sẽ không thấy vật chất đâu cả, sẽ rơi vào quan điểm duy tâm. Ngược lại, n...
+5. score=0.418 source=data\giao_trinh.md
+   content preview: Mặc dù vậy, cần coi trọng vai trò của tâm lý xã hội trong việc phát triển ý thức xã hội, nhất là việc sớm nắm bắt những ...
+
+=== KnowledgeBaseAgent Test ===
+LLM backend: qw/qwen3-coder-plus
+Question: Duy vật vs duy tâm?
+Agent answer:
+Theo đoạn văn được cung cấp, lập trường **duy vật** được nhấn mạnh là nền tảng cho một đường lối khoa học đúng đắn (xem Chunk 1). Cụ thể:
+
+- **Duy vật** là quan điểm cho rằng **vật chất là bản nguyên đầu tiên**, tồn tại khách quan, và ý thức là sản phẩm của vật chất.
+- Trong khi đó, **duy tâm** lại đặt ý thức, tư tưởng, hoặc tinh thần lên trước, coi chúng là cái sinh ra và chi phối thế giới vật chất.
+
+Đoạn văn cũng phê phán quan niệm **máy móc, siêu hình** (gắn với duy tâm hoặc quan niệm phiến diện) khi coi không gian như một "cái thùng rỗng", "khung cứng" bất biến chứa vật chất (xem Chunk 3), điều này trái ngược với cách nhìn duy vật biện chứng – theo đó **vật chất vận động tạo ra không gian và thời gian**.
+
+Tóm lại, theo nội dung được cung cấp:
+
+- **Duy vật** là cơ sở cho nhận thức khoa học và phản ánh đúng hiện thực khách quan.
+- **Duy tâm** bị phê phán vì không đặt đúng mối quan hệ giữa vật chất và ý thức, giữa không gian - thời gian và vận động của vật chất.
+
+

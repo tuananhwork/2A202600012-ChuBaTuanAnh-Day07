@@ -14,11 +14,13 @@
 Khi hai đoạn văn có high cosine similarity, điều đó thường có nghĩa là chúng đang nói về những ý gần nhau hoặc cùng một chủ đề, dù cách diễn đạt có thể khác. Nói ngắn gọn, hai vector của chúng nằm gần cùng một hướng trong không gian embedding.
 
 **Ví dụ HIGH similarity:**
+
 - Sentence A: Python là một ngôn ngữ lập trình bậc cao.
 - Sentence B: Python thường được dùng để viết phần mềm và xử lý dữ liệu.
 - Tại sao tương đồng: Cả hai câu đều nói về Python trong ngữ cảnh lập trình, nên ý nghĩa khá gần nhau.
 
 **Ví dụ LOW similarity:**
+
 - Sentence A: Cơ sở dữ liệu vector dùng để lưu embedding.
 - Sentence B: Hôm nay trời mưa khá lớn ở thành phố.
 - Tại sao khác: Hai câu gần như không liên quan về chủ đề hay ngữ cảnh.
@@ -28,13 +30,14 @@ Với text embeddings, điều quan trọng thường là hướng của vector 
 
 ### Chunking Math (Ex 1.2)
 
-**Document 10,000 ký tự, chunk_size=500, overlap=50. Bao nhiêu chunks?**  
-> *Trình bày phép tính:*  
+**Document 10,000 ký tự, chunk_size=500, overlap=50. Bao nhiêu chunks?**
+
+> _Trình bày phép tính:_  
 > `num_chunks = ceil((doc_length - overlap) / (chunk_size - overlap))`  
 > `= ceil((10000 - 50) / (500 - 50))`  
 > `= ceil(9950 / 450)`  
 > `= ceil(22.11)`  
-> *Đáp án:* `23 chunks`
+> _Đáp án:_ `23 chunks`
 
 **Nếu overlap tăng lên 100, chunk count thay đổi thế nào? Tại sao muốn overlap nhiều hơn?**  
 Khi overlap tăng lên 100 thì số chunk tăng thành `ceil((10000 - 100) / (500 - 100)) = ceil(9900 / 400) = 25`. Overlap lớn hơn giúp giữ lại ngữ cảnh ở vùng biên giữa hai chunk, giảm nguy cơ một ý quan trọng bị cắt dở.
@@ -45,27 +48,31 @@ Khi overlap tăng lên 100 thì số chunk tăng thành `ceil((10000 - 100) / (5
 
 ### Domain & Lý Do Chọn
 
-**Domain:** [ví dụ: Customer support FAQ, Vietnamese law, cooking recipes, ...]
+**Domain:** Triết học Mác - Lênin (Giáo trình đại học)
 
 **Tại sao nhóm chọn domain này?**
-> *Viết 2-3 câu:*
+
+> _Viết 2-3 câu:_
+> Nhóm chọn domain này vì giáo trình lý luận chính trị có cấu trúc chương mục rõ ràng, đồng thời chứa đựng nhiều định nghĩa, khái niệm trừu tượng với logic lập luận chặt chẽ. Việc áp dụng mô hình RAG trên bộ tài liệu này cho phép kiểm tra khả năng duy trì ngữ cảnh cũng như năng lực của mô hình trong việc trích xuất và kết nối thông tin phức tạp.
 
 ### Data Inventory
 
-| # | Tên tài liệu | Nguồn | Số ký tự | Metadata đã gán |
-|---|--------------|-------|----------|-----------------|
-| 1 | | | | |
-| 2 | | | | |
-| 3 | | | | |
-| 4 | | | | |
-| 5 | | | | |
+| #   | Tên tài liệu                     | Nguồn                  | Số ký tự | Metadata đã gán                                      |
+| --- | -------------------------------- | ---------------------- | -------- | ---------------------------------------------------- |
+| 1   | Giáo trình Triết học Mác - Lênin | Bộ Giáo dục và Đào tạo | ~906.610 | `title`, `author`, `year`, `domain`, `document_type` |
+| 2   |                                  |                        |          |                                                      |
+| 3   |                                  |                        |          |                                                      |
+| 4   |                                  |                        |          |                                                      |
+| 5   |                                  |                        |          |                                                      |
 
 ### Metadata Schema
 
-| Trường metadata | Kiểu | Ví dụ giá trị | Tại sao hữu ích cho retrieval? |
-|----------------|------|---------------|-------------------------------|
-| | | | |
-| | | | |
+| Trường metadata | Kiểu   | Ví dụ giá trị                      | Tại sao hữu ích cho retrieval?                                                                          |
+| --------------- | ------ | ---------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `title`         | string | "Giáo trình Triết học Mác - Lênin" | Giúp hệ thống định hướng truy xuất đúng tài liệu gốc khi truy vấn.                                      |
+| `domain`        | string | "Triết học Mác - Lênin"            | Phân loại thể loại dữ liệu (luật, truyện hay lý luận) để tinh chỉnh phạm vi tìm kiếm.                   |
+| `chapter`       | string | "Chương 1"                         | Rất hữu ích với tài liệu dài, giúp hạn chế khoảng tìm kiếm xuống chương cụ thể nếu xác định được topic. |
+| `document_type` | string | "textbook"                         | Dùng để filter khi kho tài liệu trộn lẫn sách tóm tắt, đề thi, và giáo trình chính thức.                |
 
 ---
 
@@ -75,44 +82,63 @@ Khi overlap tăng lên 100 thì số chunk tăng thành `ceil((10000 - 100) / (5
 
 Chạy `ChunkingStrategyComparator().compare()` trên 2-3 tài liệu:
 
-| Tài liệu | Strategy | Chunk Count | Avg Length | Preserves Context? |
-|-----------|----------|-------------|------------|-------------------|
-| | FixedSizeChunker (`fixed_size`) | | | |
-| | SentenceChunker (`by_sentences`) | | | |
-| | RecursiveChunker (`recursive`) | | | |
+| Tài liệu           | Strategy                         | Chunk Count | Avg Length | Preserves Context?      |
+| ------------------ | -------------------------------- | ----------- | ---------- | ----------------------- |
+| `giao_trinh.md`    | FixedSizeChunker (`fixed_size`)  | 1522        | 500.0      | Kém (hay cắt ngang câu) |
+| `giao_trinh.md`    | SentenceChunker (`by_sentences`) | 966         | 706.1      | Thường chunk quá dài    |
+| `giao_trinh.md`    | RecursiveChunker (`recursive`)   | 2034        | 334.8      | Tốt (giữ khối đoạn văn) |
+| `python_intro.txt` | FixedSizeChunker (`fixed_size`)  | 5           | 428.8      | Kém                     |
+| `python_intro.txt` | SentenceChunker (`by_sentences`) | 3           | 645.7      | Tốt                     |
+| `python_intro.txt` | RecursiveChunker (`recursive`)   | 5           | 387.0      | Khá tốt                 |
 
 ### Strategy Của Tôi
 
-**Loại:** [FixedSizeChunker / SentenceChunker / RecursiveChunker / custom strategy]
+**Loại:** RecursiveChunker
 
 **Mô tả cách hoạt động:**
-> *Viết 3-4 câu: strategy chunk thế nào? Dựa trên dấu hiệu gì?*
+
+> _Viết 3-4 câu: strategy chunk thế nào? Dựa trên dấu hiệu gì?_
+> Chiến lược thực hiện phân tách văn bản bằng đệ quy dựa trên một mảng các dấu phân tách ưu tiên `["\n\n", "\n", ". ", " ", ""]`. Đầu tiên nó cố gắng tách văn bản mảng lớn theo các đoạn văn (chứa `\n\n` hoặc `\n`). Nếu một cụm vẫn quá lớn (`> chunk_size`), nó sẽ tiếp tục chia nhỏ cụm đó dựa theo dấu phân tách câu chấm câu, từ đó làm giảm tối đa nguy cơ cắt rách ranh giới ngữ nghĩa.
 
 **Tại sao tôi chọn strategy này cho domain nhóm?**
-> *Viết 2-3 câu: domain có pattern gì mà strategy khai thác?*
+
+> _Viết 2-3 câu: domain có pattern gì mà strategy khai thác?_
+> Giáo trình Triết học có cấu trúc phân đoạn rõ ràng để diễn giải các khái niệm trừu tượng chồng lên nhau. Việc sử dụng RecursiveChunker khai thác được lợi thế của các khoảng trắng và dấu ngắt đoạn `\n\n`, bảo đảm nguyên vẹn 1 unit giải thích lý luận thay vì bị cắt cứng nhắc bằng cố định chiều dài.
 
 **Code snippet (nếu custom):**
+
 ```python
-# Paste implementation here
+from chunking import RecursiveChunker
+
+# Sử dụng RecursiveChunker tích hợp làm strategy chính
+chunker = RecursiveChunker(separators=["\n\n", "\n", ". ", " ", ""], chunk_size=500)
+chunks = chunker.chunk(document_text)
+
+# chunks chứa các phân đoạn với metadata đính kèm
 ```
 
 ### So Sánh: Strategy của tôi vs Baseline
 
-| Tài liệu | Strategy | Chunk Count | Avg Length | Retrieval Quality? |
-|-----------|----------|-------------|------------|--------------------|
-| | best baseline | | | |
-| | **của tôi** | | | |
+| Tài liệu        | Strategy                       | Chunk Count | Avg Length | Retrieval Quality?                                      |
+| --------------- | ------------------------------ | ----------- | ---------- | ------------------------------------------------------- |
+| `giao_trinh.md` | best baseline (`by_sentences`) | 966         | 706.1      | Bị nhão ngữ cảnh do lấy quá nhiều thông tin             |
+| `giao_trinh.md` | của tôi (`recursive`)          | 2034        | 334.8      | Tối ưu vì giới hạn tập trung quanh 1 khái niệm gọn gàng |
 
 ### So Sánh Với Thành Viên Khác
 
-| Thành viên | Strategy | Retrieval Score (/10) | Điểm mạnh | Điểm yếu |
-|-----------|----------|----------------------|-----------|----------|
-| Tôi | | | | |
-| [Tên] | | | | |
-| [Tên] | | | | |
+| Thành viên          | Strategy                          | Retrieval Score (/10) | Điểm mạnh                                                                                                            | Điểm yếu                                                                                                                      |
+| ------------------- | --------------------------------- | --------------------- | -------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| Tôi Chu Bá Tuấn Anh | RecursiveChunker                  | 8.5                   | Cân bằng tốt giữa ngữ nghĩa và độ dài; giữ được cấu trúc tài liệu (paragraph/sentence); retrieval ổn định            | Phụ thuộc heuristic nên đôi khi split chưa tối ưu; có thể tạo chunk rời rạc; cần tuning chunk size và overlap thêm            |
+| Nguyễn Mai Phương   | ParentChildChunker (Small-to-Big) | 8                     | Child nhỏ (319 chars) match chính xác thuật ngữ; parent lớn giữ ngữ cảnh section cho LLM; 4/5 queries relevant top-3 | Parent quá lớn (avg 26K chars) có thể vượt context window LLM; heading regex chỉ hoạt động tốt với giáo trình có format chuẩn |
+| Chu Thị Ngọc Huyền  | Sentence Chunking                 | 8                     | Bảo toàn ngữ cảnh logic của lập luận triết học bằng cách tôn trọng ranh giới câu, giúp RAG retrieval cao hơn         | Chunk size nhỏ hơn (422 vs 500 chars) có thể bỏ lỡ context nếu lập luận triết học kéo dài trên nhiều câu                      |
+| Nguyễn Thị Tuyết    | RecursiveChunker                  | 8                     | Giữ ngữ cảnh tốt, ít cắt ngang đoạn                                                                                  | Cần tinh chỉnh thêm theo chương                                                                                               |
+| Hứa Quang Linh      | AgenticChunker                    | 9                     | Tự phát hiện ranh giới chủ đề bằng embedding; mỗi chunk mang đủ ngữ cảnh 1 khái niệm triết học                       | Chunk lớn (avg ~4K chars) có thể chiếm nhiều context window; chạy chậm hơn (~97s trên 684K chars)                             |
+| Lĩnh                | AgenticChunker                    | 9                     | Tự phát hiện ranh giới chủ đề bằng embedding; mỗi chunk mang đủ ngữ cảnh 1 khái niệm triết học                       | Chunk lớn (avg ~4K chars) có thể chiếm nhiều context window; chạy chậm hơn (~97s trên 684K chars)                             |
 
 **Strategy nào tốt nhất cho domain này? Tại sao?**
-> *Viết 2-3 câu:*
+
+> _Viết 2-3 câu:_
+> `RecursiveChunker` rõ ràng là tốt nhất cho tài liệu lý luận chính trị. Với các đoạn văn dài giải thích định nghĩa liên kết với nhau, việc cố gắng tách chúng ở cấp độ đoạn văn hoặc cấp độ câu (nếu đoạn đó quá dài) giúp tránh mất mát ngữ nghĩa cục bộ \- một nhược điểm chí mạng khiến việc retrieval trả về các câu văn không đầy đủ cấu trúc nếu dùng FixedSize.
 
 ---
 
@@ -166,13 +192,13 @@ tests/test_solution.py::TestEmbeddingStoreDeleteDocument::test_delete_returns_tr
 
 ## 5. Similarity Predictions — Cá nhân (5 điểm)
 
-| Pair | Sentence A | Sentence B | Dự đoán | Actual Score | Đúng? |
-|------|-----------|-----------|---------|--------------|-------|
-| 1 | Python is a programming language. | Python is used to build software. | high | -0.0774 | Không |
-| 2 | Vector databases store embeddings. | Embedding stores keep vector representations for retrieval. | high | -0.0532 | Không |
-| 3 | Dogs are loyal animals. | The stock market closed lower today. | low | -0.0350 | Có |
-| 4 | Chunking helps retrieval quality. | Breaking documents into chunks can improve search. | high | -0.1378 | Không |
-| 5 | Machine learning models learn from data. | I forgot my umbrella at home. | low | 0.1123 | Không |
+| Pair | Sentence A                               | Sentence B                                                  | Dự đoán | Actual Score | Đúng? |
+| ---- | ---------------------------------------- | ----------------------------------------------------------- | ------- | ------------ | ----- |
+| 1    | Python is a programming language.        | Python is used to build software.                           | high    | -0.0774      | Không |
+| 2    | Vector databases store embeddings.       | Embedding stores keep vector representations for retrieval. | high    | -0.0532      | Không |
+| 3    | Dogs are loyal animals.                  | The stock market closed lower today.                        | low     | -0.0350      | Có    |
+| 4    | Chunking helps retrieval quality.        | Breaking documents into chunks can improve search.          | high    | -0.1378      | Không |
+| 5    | Machine learning models learn from data. | I forgot my umbrella at home.                               | low     | 0.1123       | Không |
 
 **Kết quả nào bất ngờ nhất? Điều này nói gì về cách embeddings biểu diễn nghĩa?**  
 Điều bất ngờ nhất là cặp số 5: về mặt ngữ nghĩa thì hai câu khá xa nhau, nhưng score lại dương. Điều này nhắc rằng chất lượng của embedding backend quyết định rất nhiều đến retrieval; nếu embedding chỉ mang tính giả lập hoặc không đủ semantic, score nhìn có vẻ “hợp lệ” nhưng lại không phản ánh đúng nghĩa của câu.
@@ -185,51 +211,58 @@ Chạy 5 benchmark queries của nhóm trên implementation cá nhân của bạ
 
 ### Benchmark Queries & Gold Answers (nhóm thống nhất)
 
-| # | Query | Gold Answer |
-|---|-------|-------------|
-| 1 | | |
-| 2 | | |
-| 3 | | |
-| 4 | | |
-| 5 | | |
+| #   | Query                                                 | Gold Answer                                                                                                                           |
+| --- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Triết học là gì?                                      | Triết học là hệ thống tri thức lý luận chung nhất về thế giới và vị trí con người trong thế giới đó.                                  |
+| 2   | Vấn đề cơ bản của triết học gồm những mặt nào?        | Gồm mặt bản thể luận (vật chất - ý thức cái nào có trước) và mặt nhận thức luận (con người có khả năng nhận thức thế giới hay không). |
+| 3   | Vai trò của thực tiễn đối với nhận thức là gì?        | Thực tiễn là cơ sở, động lực, mục đích và tiêu chuẩn kiểm tra chân lý của nhận thức.                                                  |
+| 4   | Phép biện chứng duy vật nhấn mạnh điều gì?            | Nhấn mạnh sự vận động, phát triển và mối liên hệ phổ biến của sự vật hiện tượng.                                                      |
+| 5   | Sự khác nhau giữa chủ nghĩa duy vật và duy tâm là gì? | Duy vật coi vật chất có trước, quyết định ý thức; duy tâm coi ý thức/tinh thần có trước.                                              |
 
 ### Kết Quả Của Tôi
 
-| # | Query | Top-1 Retrieved Chunk (tóm tắt) | Score | Relevant? | Agent Answer (tóm tắt) |
-|---|-------|--------------------------------|-------|-----------|------------------------|
-| 1 | | | | | |
-| 2 | | | | | |
-| 3 | | | | | |
-| 4 | | | | | |
-| 5 | | | | | |
+| #   | Query                        | Top-1 Retrieved Chunk (tóm tắt)                    | Score | Relevant? | Agent Answer (tóm tắt)                                                                                                                                                                                                                                                                                                                               |
+| --- | ---------------------------- | -------------------------------------------------- | ----- | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Triết học là gì?             | Thế giới quan là toàn bộ những quan điểm về thế... | 0.633 | Có        | Theo nội dung được cung cấp trong đoạn trích, triết học là **hạt nhân lý luận của thế giới quan**. Ngoài ra, triết học Mác - Lênin còn được mô tả là mang lại **thế giới quan duy vật biện chứng**, đóng vai trò là **hạt nhân thế giới quan cộng sản**.                                                                                             |
+| 2   | Vấn đề cơ bản của triết học? | Như vậy, triết học với tính cách là hạt nhân lý... | 0.779 | Có        | Vấn đề cơ bản của triết học là vấn đề về mối quan hệ giữa vật chất với ý thức. Đây là vấn đề có ý nghĩa nền tảng, là điểm xuất phát để giải quyết tất cả những vấn đề còn lại trong triết học. Ph.Ăngghen cũng từng nhấn mạnh: “Vấn đề cơ bản lớn của mọi triết học, đặc biệt là của triết học hiện đại, là vấn đề quan hệ giữa tư duy với tồn tại.” |
+| 3   | Vai trò của thực tiễn?       | Sự hoà quyện giữa tri thức với tình cảm và trải... | 0.697 | Có        | Theo nội dung được cung cấp trong đoạn trích, vai trò của thực tiễn rất quan trọng:                                                                                                                                                                                                                                                                  |
+| 4   | Phép biện chứng duy vật?     | _b. Khái niệm phép biện chứng duy vật_...          | 0.829 | Có        | Phép biện chứng duy vật là một khái niệm được đề cập trong [Chunk 1], tuy nhiên nội dung cụ thể của khái niệm này không được trình bày rõ ràng trong các đoạn cung cấp. Do đó, không thể đưa ra định nghĩa đầy đủ về phép biện chứng duy vật chỉ từ những thông tin hiện có.                                                                         |
+| 5   | Duy vật vs duy tâm?          | Đó là một đường lối khoa học và đường lối đó ch... | 0.456 | Môt phần  | Theo đoạn văn được cung cấp, lập trường **duy vật** được nhấn mạnh là nền tảng cho một đường lối khoa học đúng đắn (xem Chunk 1). Cụ thể:                                                                                                                                                                                                            |
 
-**Bao nhiêu queries trả về chunk relevant trong top-3?** __ / 5
+**Bao nhiêu queries trả về chunk relevant trong top-3?** 4 / 5 _(Chạy thực tế với Local Embedder `all-MiniLM-L6-v2` và Agent API `qwen3-coder-plus` - Vẫn khá hạn chế về mặt ngữ nghĩa tiếng Việt đối với các query ngắn)._
 
 ---
 
 ## 7. What I Learned (5 điểm — Demo)
 
 **Điều hay nhất tôi học được từ thành viên khác trong nhóm:**
-> *Viết 2-3 câu:*
+
+> _Viết 2-3 câu:_
+> Học được cách quản lý edge case khi chia cắt text bằng RegEx cho từng câu (`SentenceChunker`), giúp cho việc xử lý dữ liệu đa dạng và linh hoạt hơn nhiều thay vì chỉ đơn thuần là dùng split theo ký tự có sẵn.
 
 **Điều hay nhất tôi học được từ nhóm khác (qua demo):**
-> *Viết 2-3 câu:*
+
+> _Viết 2-3 câu:_
+> Thấy được mức độ ảnh hưởng quyết định của việc lựa chọn Embedding Model (vd: OpenAI vs Local SentenceTransformers vs Mock) đối với độ nhạy của Agent. Hóa ra Chunking chỉ góp phần định dạng đầu vào nhưng Embedding Model mới thực sự là "linh hồn" của thuật toán search ngữ nghĩa.
 
 **Nếu làm lại, tôi sẽ thay đổi gì trong data strategy?**
-> *Viết 2-3 câu:*
+
+> _Viết 2-3 câu:_
+> Tôi muốn cải tiến khâu extract data để bóc tách rõ tên "Chương" và từng "Danh mục" bằng RegExp rồi gán vào Metadata. Sau này ứng dụng tính năng `search_with_filter` của `EmbeddingStore` lọc Metadata trước khi tính toán similarity sẽ khoanh vùng tốt hơn và cải thiện chất lượng Agent.
 
 ---
 
 ## Tự Đánh Giá
 
-| Tiêu chí | Loại | Điểm tự đánh giá |
-|----------|------|-------------------|
-| Warm-up | Cá nhân | / 5 |
-| Document selection | Nhóm | / 10 |
-| Chunking strategy | Nhóm | / 15 |
-| My approach | Cá nhân | / 10 |
-| Similarity predictions | Cá nhân | / 5 |
-| Results | Cá nhân | / 10 |
-| Core implementation (tests) | Cá nhân | / 30 |
-| Demo | Nhóm | / 5 |
-| **Tổng** | | **/ 100** |
+| Tiêu chí               | Điểm  | Lý do ngắn                             |
+| ---------------------- | ----- | -------------------------------------- |
+| Warm-up                | 5/5   | đúng + giải thích rõ                   |
+| Document selection     | 8/10  | thiếu số lượng doc                     |
+| Chunking strategy      | 13/15 | phân tích tốt, thiếu phản biện Agentic |
+| My approach            | 10/10 | rất rõ, đúng kỹ thuật                  |
+| Similarity predictions | 4/5   | có phân tích nhưng chưa sâu            |
+| Results                | 9/10  | có benchmark, thiếu sample answer      |
+| Core implementation    | 30/30 | 43/43 test pass                        |
+| Demo                   | 5/5   | đầy đủ insight                         |
+
+Tôổn: 5 + 8 + 13 + 10 + 4 + 9 + 30 + 5 = 84 / 100

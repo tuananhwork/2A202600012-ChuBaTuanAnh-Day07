@@ -2,10 +2,13 @@ from __future__ import annotations
 
 import hashlib
 import math
+import os
 
 LOCAL_EMBEDDING_MODEL = "all-MiniLM-L6-v2"
 OPENAI_EMBEDDING_MODEL = "text-embedding-3-small"
 EMBEDDING_PROVIDER_ENV = "EMBEDDING_PROVIDER"
+OPENAI_BASE_URL_ENV = "OPENAI_BASE_URL"
+OPENAI_API_KEY_ENV = "OPENAI_API_KEY"
 
 
 class MockEmbedder:
@@ -46,12 +49,24 @@ class LocalEmbedder:
 class OpenAIEmbedder:
     """OpenAI embeddings API-backed embedder."""
 
-    def __init__(self, model_name: str = OPENAI_EMBEDDING_MODEL) -> None:
+    def __init__(
+        self,
+        model_name: str = OPENAI_EMBEDDING_MODEL,
+        base_url: str | None = None,
+        api_key: str | None = None,
+    ) -> None:
         from openai import OpenAI
 
         self.model_name = model_name
         self._backend_name = model_name
-        self.client = OpenAI()
+        client_kwargs = {}
+        resolved_base_url = base_url or os.getenv(OPENAI_BASE_URL_ENV)
+        resolved_api_key = api_key or os.getenv(OPENAI_API_KEY_ENV)
+        if resolved_base_url:
+            client_kwargs["base_url"] = resolved_base_url
+        if resolved_api_key:
+            client_kwargs["api_key"] = resolved_api_key
+        self.client = OpenAI(**client_kwargs)
 
     def __call__(self, text: str) -> list[float]:
         response = self.client.embeddings.create(model=self.model_name, input=text)

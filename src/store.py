@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import json
 from typing import Any, Callable
+from pathlib import Path
 
 from .chunking import _dot
 from .embeddings import _mock_embed
@@ -150,3 +152,20 @@ class EmbeddingStore:
                 self._collection = None
 
         return True
+
+    def save_to_disk(self, path: str | Path, metadata: dict[str, Any] | None = None) -> None:
+        cache_path = Path(path)
+        cache_path.parent.mkdir(parents=True, exist_ok=True)
+        payload = {
+            "metadata": metadata or {},
+            "records": self._store,
+            "next_index": self._next_index,
+        }
+        cache_path.write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
+
+    def load_from_disk(self, path: str | Path) -> dict[str, Any]:
+        cache_path = Path(path)
+        payload = json.loads(cache_path.read_text(encoding="utf-8"))
+        self._store = list(payload.get("records", []))
+        self._next_index = int(payload.get("next_index", len(self._store)))
+        return dict(payload.get("metadata", {}))

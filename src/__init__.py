@@ -9,6 +9,8 @@ from .chunking import (
 from .embeddings import (
     EMBEDDING_PROVIDER_ENV,
     LOCAL_EMBEDDING_MODEL,
+    OPENAI_API_KEY_ENV,
+    OPENAI_BASE_URL_ENV,
     OPENAI_EMBEDDING_MODEL,
     LocalEmbedder,
     MockEmbedder,
@@ -34,4 +36,6 @@ __all__ = [
     "LOCAL_EMBEDDING_MODEL",
     "OPENAI_EMBEDDING_MODEL",
     "EMBEDDING_PROVIDER_ENV",
+    "OPENAI_BASE_URL_ENV",
+    "OPENAI_API_KEY_ENV",
 ]

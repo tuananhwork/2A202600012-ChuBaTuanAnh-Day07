@@ -9,12 +9,17 @@ No real API keys required — uses mock embeddings.
 """
 
 import importlib
+import json
 import os
+import sys
+import types
 import unittest
 from pathlib import Path
+from tempfile import TemporaryDirectory
 
 DAY_DIR = Path(__file__).parent.parent
 PACKAGE_NAME = os.getenv("LAB_SOLUTION_PACKAGE", "src")
+main_module = importlib.import_module("main")
 
 _m = importlib.import_module(PACKAGE_NAME)
 
@@ -57,6 +62,125 @@ class TestClassBasedInterfaces(unittest.TestCase):
     def test_mock_embedder_exists(self):
         embedder = MockEmbedder()
         self.assertEqual(len(embedder("hello")), 64)
+
+
+class TestOpenAIEmbedderConfig(unittest.TestCase):
+    def test_openai_embedder_reads_base_url_and_api_key_from_env(self):
+        captured: dict = {}
+
+        class FakeOpenAI:
+            def __init__(self, **kwargs):
+                captured.update(kwargs)
+                self.embeddings = types.SimpleNamespace(
+                    create=lambda model, input: types.SimpleNamespace(
+                        data=[types.SimpleNamespace(embedding=[0.1, 0.2, 0.3])]
+                    )
+                )
+
+        fake_module = types.SimpleNamespace(OpenAI=FakeOpenAI)
+        original_module = sys.modules.get("openai")
+        sys.modules["openai"] = fake_module
+        original_base_url = os.environ.get("OPENAI_BASE_URL")
+        original_api_key = os.environ.get("OPENAI_API_KEY")
+
+        try:
+            os.environ["OPENAI_BASE_URL"] = "http://localhost:20128/v1"
+            os.environ["OPENAI_API_KEY"] = "test-local-key"
+            embedder = template.OpenAIEmbedder(model_name="gemini/text-embedding-004")
+            self.assertEqual(embedder("hello"), [0.1, 0.2, 0.3])
+            self.assertEqual(captured.get("base_url"), "http://localhost:20128/v1")
+            self.assertEqual(captured.get("api_key"), "test-local-key")
+        finally:
+            if original_module is None:
+                sys.modules.pop("openai", None)
+            else:
+                sys.modules["openai"] = original_module
+
+            if original_base_url is None:
+                os.environ.pop("OPENAI_BASE_URL", None)
+            else:
+                os.environ["OPENAI_BASE_URL"] = original_base_url
+
+            if original_api_key is None:
+                os.environ.pop("OPENAI_API_KEY", None)
+            else:
+                os.environ["OPENAI_API_KEY"] = original_api_key
+
+
+class TestOpenAILLMConfig(unittest.TestCase):
+    def test_make_llm_fn_uses_local_openai_compatible_chat_config(self):
+        captured: dict = {}
+
+        class FakeOpenAI:
+            def __init__(self, **kwargs):
+                captured["client_kwargs"] = kwargs
+                self.chat = types.SimpleNamespace(
+                    completions=types.SimpleNamespace(create=self._create)
+                )
+
+            def _create(self, **kwargs):
+                captured["request_kwargs"] = kwargs
+                return types.SimpleNamespace(
+                    choices=[types.SimpleNamespace(message=types.SimpleNamespace(content="local llm answer"))]
+                )
+
+        fake_module = types.SimpleNamespace(OpenAI=FakeOpenAI)
+        original_module = sys.modules.get("openai")
+        sys.modules["openai"] = fake_module
+        original_env = {
+            "LLM_PROVIDER": os.environ.get("LLM_PROVIDER"),
+            "OPENAI_BASE_URL": os.environ.get("OPENAI_BASE_URL"),
+            "OPENAI_API_KEY": os.environ.get("OPENAI_API_KEY"),
+            "OPENAI_LLM_MODEL": os.environ.get("OPENAI_LLM_MODEL"),
+        }
+
+        try:
+            os.environ["LLM_PROVIDER"] = "openai"
+            os.environ["OPENAI_BASE_URL"] = "http://localhost:20128/v1"
+            os.environ["OPENAI_API_KEY"] = "test-local-key"
+            os.environ["OPENAI_LLM_MODEL"] = "kr/claude-sonnet-4.5"
+
+            llm_fn = main_module.make_llm_fn()
+            result = llm_fn("Explain retrieval.")
+
+            self.assertEqual(result, "local llm answer")
+            self.assertEqual(captured["client_kwargs"]["base_url"], "http://localhost:20128/v1")
+            self.assertEqual(captured["client_kwargs"]["api_key"], "test-local-key")
+            self.assertEqual(captured["request_kwargs"]["model"], "kr/claude-sonnet-4.5")
+        finally:
+            if original_module is None:
+                sys.modules.pop("openai", None)
+            else:
+                sys.modules["openai"] = original_module
+
+            for key, value in original_env.items():
+                if value is None:
+                    os.environ.pop(key, None)
+                else:
+                    os.environ[key] = value
+
+
+class TestMainChunkingFlow(unittest.TestCase):
+    def test_chunk_documents_uses_recursive_chunker_and_preserves_metadata(self):
+        documents = [
+            Document(
+                id="doc1",
+                content="Paragraph one.\n\nParagraph two is a bit longer. " * 20,
+                metadata={"source": "data/doc1.md"},
+            )
+        ]
+
+        chunks = main_module.chunk_documents(documents, chunk_size=120)
+
+        self.assertGreater(len(chunks), 1)
+        self.assertTrue(all(len(chunk.content) <= 120 for chunk in chunks))
+        self.assertTrue(all(chunk.metadata["doc_id"] == "doc1" for chunk in chunks))
+        self.assertTrue(all(chunk.metadata["source"] == "data/doc1.md" for chunk in chunks))
+
+    def test_make_preview_text_replaces_newlines(self):
+        preview = main_module.make_preview_text("dòng một\n dòng hai", limit=20)
+        self.assertNotIn("\n", preview)
+        self.assertIsInstance(preview, str)
 
 
 class TestFixedSizeChunker(unittest.TestCase):
@@ -323,6 +447,68 @@ class TestEmbeddingStoreDeleteDocument(unittest.TestCase):
         self.store.delete_document("doc_to_delete")
         size_after = self.store.get_collection_size()
         self.assertLess(size_after, size_before)
+
+
+class TestEmbeddingStorePersistence(unittest.TestCase):
+    def test_save_and_load_round_trip_preserves_records(self):
+        with TemporaryDirectory() as temp_dir:
+            cache_path = Path(temp_dir) / "store_cache.json"
+            store = template.EmbeddingStore("persist_test", embedding_fn=_mock_embed)
+            store.add_documents([
+                template.Document("doc1", "Chunk one about embeddings.", {"source": "a.md"}),
+                template.Document("doc2", "Chunk two about retrieval.", {"source": "b.md"}),
+            ])
+
+            store.save_to_disk(cache_path, metadata={"backend": "mock"})
+
+            restored = template.EmbeddingStore("persist_test", embedding_fn=_mock_embed)
+            metadata = restored.load_from_disk(cache_path)
+
+            self.assertEqual(metadata["backend"], "mock")
+            self.assertEqual(restored.get_collection_size(), 2)
+            self.assertLessEqual(len(restored.search("retrieval", top_k=1)), 1)
+
+
+class TestMainCacheFlow(unittest.TestCase):
+    def test_compute_cache_metadata_tracks_documents_and_backend(self):
+        documents = [
+            template.Document("doc1", "Alpha content", {"source": "data/a.md"}),
+            template.Document("doc2", "Beta content", {"source": "data/b.md"}),
+        ]
+
+        metadata = main_module.compute_cache_metadata(
+            documents=documents,
+            embedding_backend="mock embeddings fallback",
+            chunk_size=500,
+        )
+
+        self.assertEqual(metadata["embedding_backend"], "mock embeddings fallback")
+        self.assertEqual(metadata["chunk_size"], 500)
+        self.assertEqual(len(metadata["documents"]), 2)
+
+    def test_load_cached_store_reuses_matching_cache(self):
+        with TemporaryDirectory() as temp_dir:
+            cache_path = Path(temp_dir) / "store_cache.json"
+            documents = [
+                template.Document("doc1", "Alpha content", {"source": "data/a.md"}),
+            ]
+            metadata = main_module.compute_cache_metadata(
+                documents=documents,
+                embedding_backend="mock embeddings fallback",
+                chunk_size=500,
+            )
+
+            store = template.EmbeddingStore("persist_test", embedding_fn=_mock_embed)
+            store.add_documents([
+                template.Document("doc1::chunk::0", "Alpha content", {"source": "data/a.md", "doc_id": "doc1", "chunk_index": 0}),
+            ])
+            store.save_to_disk(cache_path, metadata=metadata)
+
+            restored = template.EmbeddingStore("persist_test", embedding_fn=_mock_embed)
+            used_cache = main_module.load_cached_store_if_valid(restored, cache_path, metadata)
+
+            self.assertTrue(used_cache)
+            self.assertEqual(restored.get_collection_size(), 1)
 
 
 if __name__ == "__main__":
