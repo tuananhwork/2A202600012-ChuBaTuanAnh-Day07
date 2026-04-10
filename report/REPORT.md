@@ -133,7 +133,7 @@ chunks = chunker.chunk(document_text)
 | Chu Thị Ngọc Huyền  | Sentence Chunking                 | 8                     | Bảo toàn ngữ cảnh logic của lập luận triết học bằng cách tôn trọng ranh giới câu, giúp RAG retrieval cao hơn         | Chunk size nhỏ hơn (422 vs 500 chars) có thể bỏ lỡ context nếu lập luận triết học kéo dài trên nhiều câu                      |
 | Nguyễn Thị Tuyết    | RecursiveChunker                  | 8                     | Giữ ngữ cảnh tốt, ít cắt ngang đoạn                                                                                  | Cần tinh chỉnh thêm theo chương                                                                                               |
 | Hứa Quang Linh      | AgenticChunker                    | 9                     | Tự phát hiện ranh giới chủ đề bằng embedding; mỗi chunk mang đủ ngữ cảnh 1 khái niệm triết học                       | Chunk lớn (avg ~4K chars) có thể chiếm nhiều context window; chạy chậm hơn (~97s trên 684K chars)                             |
-| Lĩnh                | AgenticChunker                    | 9                     | Tự phát hiện ranh giới chủ đề bằng embedding; mỗi chunk mang đủ ngữ cảnh 1 khái niệm triết học                       | Chunk lớn (avg ~4K chars) có thể chiếm nhiều context window; chạy chậm hơn (~97s trên 684K chars)                             |
+| Nguyễn Văn Lĩnh     | SentenceChunker(3)                | 8.5                   | Giữ ngữ pháp, retrieval scores cao (0.3-0.5)                                                                         | Tăng số lượng chunk (1610 vs 300), có thể chậm retrieval                                                                      |
 
 **Strategy nào tốt nhất cho domain này? Tại sao?**
 
